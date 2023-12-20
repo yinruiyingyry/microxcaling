@@ -143,13 +143,13 @@ class ConvFunction(torch.autograd.Function):
         num_spatial_dims = input.ndim - 2
         assert num_spatial_dims in (1, 2, 3)
         if num_spatial_dims == 1:
-            fwd_func = torch_conv1d
+            fwd_func = f_conv1d
             ctx.conv_input = grad.conv1d_input
         elif num_spatial_dims == 2:
-            fwd_func = torch_conv2d
+            fwd_func = f_conv2d
             ctx.conv_input = grad.conv2d_input
         elif num_spatial_dims == 3:
-            fwd_func = torch_conv3d
+            fwd_func = f_conv3d
             ctx.conv_input = grad.conv3d_input
 
         # round with mx_specs['round_output']

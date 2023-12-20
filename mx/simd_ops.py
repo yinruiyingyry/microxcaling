@@ -78,6 +78,18 @@ def _broadcast_gradient(grad_out, in_shape, mx_specs):
     else:
         return grad_out.view(in_shape)
 
+class SIMDAddModule(nn.Module):
+    def __init__(self, mx_specs=None, name=None):
+        mx_assert_test(mx_specs)
+        self.mx_none = mx_specs is None
+
+        self.name = name
+        self.mx_specs = apply_mx_specs(mx_specs)
+
+        super().__init__()
+
+    def forward(self, x, y):
+        return simd_add(x, y, self.mx_specs)
 
 #----------------------------------------------------
 # Autograd functions
@@ -91,7 +103,7 @@ class SIMDAdd(torch.autograd.Function):
     def forward(ctx, in1, in2, mx_specs=None):
         ctx.mx_specs = get_backwards_mx_specs(mx_specs)
         assert(isinstance(in1, torch.Tensor))
-    
+
         qin1 = vec_quantize(in1, mx_specs=mx_specs)
 
         if isinstance(in2, torch.Tensor):
@@ -126,7 +138,7 @@ class SIMDSub(torch.autograd.Function):
     def forward(ctx, in1, in2, mx_specs=None):
         ctx.mx_specs = get_backwards_mx_specs(mx_specs)
         assert(isinstance(in1, torch.Tensor))
-    
+
         qin1 = vec_quantize(in1, mx_specs=mx_specs)
 
         if isinstance(in2, torch.Tensor):

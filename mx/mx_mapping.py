@@ -18,6 +18,9 @@ from .softmax import Softmax, softmax
 from .simd_ops import simd_add, simd_sub, simd_mul, simd_div, simd_exp, simd_log, simd_reduce_sum, simd_reduce_mean, \
     simd_norm, simd_square
 
+from .simd_ops import SIMDAddModule
+from auto_module import modules as amm
+
 DEBUG = False
 
 torch_addmm = torch.addmm
@@ -56,6 +59,9 @@ def inject_pyt_ops(mx_specs):
     for k,v in MODULE_MAPPING.items():
         torch.nn.__dict__[k] = mx_class_factory(v)
 
+    for k,v in AUTO_MODULE_MAPPING.items():
+        amm.__dict__[k] = mx_class_factory(v)
+
 
 def addmm_mx(bias, in1, in2, mx_specs=None, name=None):
     if mx_specs is None:
@@ -64,6 +70,9 @@ def addmm_mx(bias, in1, in2, mx_specs=None, name=None):
     mx_specs = apply_mx_specs(mx_specs)
     return MatMulFunction.apply(in1, in2, bias, mx_specs, name)
 
+AUTO_MODULE_MAPPING = {
+    "Add": SIMDAddModule,
+}
 
 MODULE_MAPPING = {
     "AdaptiveAvgPool2d": AdaptiveAvgPool2d,
