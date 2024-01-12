@@ -66,7 +66,7 @@ class LayerNormFunction(torch.autograd.Function):
 
 
 class LayerNorm(torch.nn.LayerNorm):
-    def __init__(self, hidden_size, eps=1e-12, mx_specs=None, name=None):
+    def __init__(self, hidden_size, eps=1e-12, elementwise_affine=True, mx_specs=None, name=None):
         """Construct a layernorm module in the TF style (epsilon inside the square root).
         """
         mx_assert_test(mx_specs)
@@ -76,7 +76,7 @@ class LayerNorm(torch.nn.LayerNorm):
         self.mx_specs = apply_mx_specs(mx_specs)
 
         super().__init__(
-                normalized_shape=hidden_size, eps=eps)
+                normalized_shape=hidden_size, eps=eps, elementwise_affine=elementwise_affine)
 
     def apply_mx_specs(self, mx_specs):
         self.mx_specs = mx_specs
@@ -198,7 +198,7 @@ class RMSNorm(torch.nn.LayerNorm):
         return RMSNormFunction.apply(
                 x, self.weight, self.bias, self.eps,
                 self.mx_specs, self.name)
-    
+
 
 def layer_norm(input, normalized_shape, weight, bias, eps=1e-12,
                mx_specs=None, name=None):

@@ -570,7 +570,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--backend", default="PIL", type=str.lower, help="PIL or tensor - case insensitive")
     parser.add_argument("--use-v2", action="store_true", help="Use V2 transforms")
-    parser.add_argument('--no-mx', action='store_true', help='Whether to do mx quantization.')
+    parser.add_argument('--no_mx', action='store_true', help='Whether to do mx quantization.')
 
     # Add MX arguments
     parser = add_mx_args(parser)

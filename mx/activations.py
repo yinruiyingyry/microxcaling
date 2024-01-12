@@ -187,7 +187,7 @@ class SiLU(torch.nn.SiLU):
         mx_assert_test(mx_specs)
         self.mx_none = (mx_specs is None)
 
-        self.mx_specs = apply_mx_specs(mx_specs) 
+        self.mx_specs = apply_mx_specs(mx_specs)
         self.name = name
 
     def forward(self, input):
