@@ -7,6 +7,8 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import json
+import sys
+sys.path.append('../../../')
 
 from pathlib import Path
 
@@ -194,6 +196,7 @@ def get_args_parser():
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     parser.add_argument('--no-mx', action='store_true', help='Whether to do mx quantization.')
+    parser.add_argument('--local_rank', type=int, default=0, help='Whether to do mx quantization.')
     # Add MX arguments
     parser = add_mx_args(parser)
     return parser
@@ -361,7 +364,7 @@ def main(args):
 
     model_without_ddp = model
     if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank])
         model_without_ddp = model.module
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
@@ -428,9 +431,9 @@ def main(args):
             if 'scaler' in checkpoint:
                 loss_scaler.load_state_dict(checkpoint['scaler'])
         lr_scheduler.step(args.start_epoch)
+    test_stats = evaluate(data_loader_val, model, device)
+    print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
     if args.eval:
-        test_stats = evaluate(data_loader_val, model, device)
-        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         return
 
     print(f"Start training for {args.epochs} epochs")
